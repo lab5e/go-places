@@ -1,0 +1,3236 @@
+openapi: 3.0.2
+info:
+  description: |
+    The Places API provides access to the different features of the Lab5e Places server, including capabilities such as pub/sub, geofencing and storage of tracking data.
+  license:
+    name: Apache 2.0
+  title: Places API
+  version: v0.1
+servers:
+- description: Local instance of Places
+  url: http://localhost:8080/api/v1
+- description: Beta instance of Places
+  url: https://places.lab5e.com
+tags:
+- description: This section includes the operations concerning Teams for the Places
+    server
+  name: Team
+- description: This section includes the operations concerning Collections for the
+    Places server
+  name: Collection
+- description: This section includes the operations concerning Trackers for the Places
+    server
+  name: Tracker
+- description: This section includes the operations concerning Subscriptions for the
+    Places server
+  name: Subscription
+- description: This section includes the operations concerning ShapeCollections for
+    the Places server
+  name: ShapeCollection
+- description: This section includes the operations concerning Position creation and
+    retrieval for the Places server
+  name: Position
+- description: This section includes the operations concerning Token creation and
+    retrieval for the Places server
+  name: Token
+paths:
+  /profile:
+    get:
+      description: Get authenticated Profile
+      operationId: getProfile
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+          description: Get authenticated Profile
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+      security:
+      - APIToken: []
+      summary: Get authenticated Profile
+      tags:
+      - Profile
+  /teams:
+    get:
+      description: Get all Teams
+      operationId: getTeams
+      parameters:
+      - description: Limit number of responses (default 255, max 2500)
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 255
+          description: The max number of responses returned
+          example: 1000
+          format: int64
+          maximum: 2500
+          minimum: 1
+          type: integer
+        style: form
+      - description: Offset the response by the integer given. If provided, needs
+          to be above 0.
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 1
+          description: The integer which offsets the response array
+          example: 1
+          format: int64
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponseArray'
+          description: Get all Teams
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+      security:
+      - APIToken: []
+      summary: Get all Teams
+      tags:
+      - Team
+    post:
+      description: Create a new Team
+      operationId: createTeam
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTeamRequest'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+          description: Returns newly created Team
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to create Team
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+      security:
+      - APIToken: []
+      summary: Create a new Team
+      tags:
+      - Team
+  /teams/{teamId}:
+    delete:
+      description: Delete a Team
+      operationId: deleteTeam
+      parameters:
+      - description: The ID of the Team
+        explode: false
+        in: path
+        name: teamId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "204":
+          description: Team was deleted successfully
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Team found with given ID
+      security:
+      - APIToken: []
+      summary: Delete a Team
+      tags:
+      - Team
+    get:
+      description: Get a single Team
+      operationId: getTeam
+      parameters:
+      - description: The ID of the Team
+        explode: false
+        in: path
+        name: teamId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+          description: Returns a Team
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Team found with given ID
+      security:
+      - APIToken: []
+      summary: Get a single Team
+      tags:
+      - Team
+    put:
+      description: Update a Team
+      operationId: updateTeam
+      parameters:
+      - description: The ID of the Team
+        explode: false
+        in: path
+        name: teamId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditTeamRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+          description: Returns an updated Team upon successful update
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to update Team
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Team found with given ID
+      security:
+      - APIToken: []
+      summary: Update a Team
+      tags:
+      - Team
+  /collections:
+    get:
+      description: Get all Collections
+      operationId: getCollections
+      parameters:
+      - description: Limit number of responses (default 255, max 2500)
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 255
+          description: The max number of responses returned
+          example: 1000
+          format: int64
+          maximum: 2500
+          minimum: 1
+          type: integer
+        style: form
+      - description: Offset the response by the integer given. If provided, needs
+          to be above 0.
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 1
+          description: The integer which offsets the response array
+          example: 1
+          format: int64
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionResponseArray'
+          description: Returns all Collections
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+      security:
+      - APIToken: []
+      summary: Get all Collections
+      tags:
+      - Collection
+    post:
+      description: Create a new Collection
+      operationId: createCollection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCollectionRequest'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionResponse'
+          description: Returns newly created Collection
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to create Collection
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+      security:
+      - APIToken: []
+      summary: Create a new Collection
+      tags:
+      - Collection
+  /collections/{collectionId}:
+    delete:
+      description: Delete a Collection
+      operationId: deleteCollection
+      parameters:
+      - description: The ID of the Collection
+        explode: false
+        in: path
+        name: collectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "204":
+          description: Collection was deleted successfully
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Collection found with given ID
+      security:
+      - APIToken: []
+      summary: Delete a Collection
+      tags:
+      - Collection
+    get:
+      description: Get a single Collection
+      operationId: getCollection
+      parameters:
+      - description: The ID of the Collection
+        explode: false
+        in: path
+        name: collectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionResponse'
+          description: Returns a Collection
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Collection found with given ID
+      security:
+      - APIToken: []
+      summary: Get a single Collection
+      tags:
+      - Collection
+    put:
+      description: Update a new Collection
+      operationId: updateCollection
+      parameters:
+      - description: The ID of the Collection
+        explode: false
+        in: path
+        name: collectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditCollectionRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionResponse'
+          description: Returns updated Collection
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to create Collection
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Collection found with given ID
+      security:
+      - APIToken: []
+      summary: Update a Collection
+      tags:
+      - Collection
+  /collections/{collectionId}/trackers:
+    get:
+      description: Get all Trackers
+      operationId: getTrackers
+      parameters:
+      - description: The ID of the Collection
+        explode: false
+        in: path
+        name: collectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      - description: Limit number of responses (default 255, max 2500)
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 255
+          description: The max number of responses returned
+          example: 1000
+          format: int64
+          maximum: 2500
+          minimum: 1
+          type: integer
+        style: form
+      - description: Offset the response by the integer given. If provided, needs
+          to be above 0.
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 1
+          description: The integer which offsets the response array
+          example: 1
+          format: int64
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackerResponseArray'
+          description: Returns all trackers for collection
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Collection found with given ID
+      security:
+      - APIToken: []
+      summary: Get all Trackers
+      tags:
+      - Tracker
+    post:
+      description: Create a new Tracker
+      operationId: createTracker
+      parameters:
+      - description: The ID of the Collection
+        explode: false
+        in: path
+        name: collectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTrackerRequest'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackerResponse'
+          description: Returns newly created Tracker
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to create Tracker
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Collection found with given ID
+      security:
+      - APIToken: []
+      summary: Create a new Tracker
+      tags:
+      - Tracker
+  /collections/{collectionId}/trackers/{trackerId}:
+    delete:
+      description: Delete a Tracker
+      operationId: deleteTracker
+      parameters:
+      - description: The ID of the Collection
+        explode: false
+        in: path
+        name: collectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      - description: The ID of the Tracker
+        explode: false
+        in: path
+        name: trackerId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "204":
+          description: Tracker deleted successfully
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Collection or Tracker found with given ID
+      security:
+      - APIToken: []
+      summary: Delete a Tracker
+      tags:
+      - Tracker
+    get:
+      description: Get a single Tracker
+      operationId: getTracker
+      parameters:
+      - description: The ID of the Collection
+        explode: false
+        in: path
+        name: collectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      - description: The ID of the Tracker
+        explode: false
+        in: path
+        name: trackerId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackerResponse'
+          description: Returns a Tracker
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Collection or Tracker found with given ID
+      security:
+      - APIToken: []
+      summary: Get a single Tracker
+      tags:
+      - Tracker
+    put:
+      description: Update a Tracker
+      operationId: updateTracker
+      parameters:
+      - description: The ID of the Collection
+        explode: false
+        in: path
+        name: collectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      - description: The ID of the Tracker
+        explode: false
+        in: path
+        name: trackerId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditTrackerRequest'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackerResponse'
+          description: Returns the updated Tracker
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to update Tracker
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Collection or Tracker found with given ID
+      security:
+      - APIToken: []
+      summary: Update a Tracker
+      tags:
+      - Tracker
+  /collections/{collectionId}/trackers/{trackerId}/positions:
+    get:
+      description: Get all Positions for Tracker
+      operationId: getPositions
+      parameters:
+      - description: The ID of the Collection
+        explode: false
+        in: path
+        name: collectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      - description: The ID of the Tracker
+        explode: false
+        in: path
+        name: trackerId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      - description: Limit number of responses (default 255, max 2500)
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 255
+          description: The max number of responses returned
+          example: 1000
+          format: int64
+          maximum: 2500
+          minimum: 1
+          type: integer
+        style: form
+      - description: Offset the response by the integer given. If provided, needs
+          to be above 0.
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 1
+          description: The integer which offsets the response array
+          example: 1
+          format: int64
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PositionResponseArray'
+          description: Returns all Positions for Tracker
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Collection or Tracker found with given IDs
+      security:
+      - APIToken: []
+      summary: Get all Positions for Tracker
+      tags:
+      - Position
+    post:
+      description: Create a new position for the Tracker
+      operationId: createPosition
+      parameters:
+      - description: The ID of the Collection
+        explode: false
+        in: path
+        name: collectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      - description: The ID of the Tracker
+        explode: false
+        in: path
+        name: trackerId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPositionRequest'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PositionResponse'
+          description: Returns newly created Position
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to create Position
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+      security:
+      - APIToken: []
+      summary: Create a new position for the Tracker
+      tags:
+      - Position
+  /subscriptions:
+    get:
+      description: Get all Subscriptions
+      operationId: getSubscriptions
+      parameters:
+      - description: Limit number of responses (default 255, max 2500)
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 255
+          description: The max number of responses returned
+          example: 1000
+          format: int64
+          maximum: 2500
+          minimum: 1
+          type: integer
+        style: form
+      - description: Offset the response by the integer given. If provided, needs
+          to be above 0.
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 1
+          description: The integer which offsets the response array
+          example: 1
+          format: int64
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionResponseArray'
+          description: Returns all Subscriptions
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+      security:
+      - APIToken: []
+      summary: Get all Subscriptions
+      tags:
+      - Subscription
+    post:
+      description: Create a new Subscription
+      operationId: createSubscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSubscriptionRequest'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionResponse'
+          description: Returns newly created Subscription
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to create Subscription
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+      security:
+      - APIToken: []
+      summary: Create a new Subscription
+      tags:
+      - Subscription
+  /subscriptions/{subscriptionId}:
+    delete:
+      description: Delete a Subscription
+      operationId: deleteSubscription
+      parameters:
+      - description: The ID of the Subscription
+        explode: false
+        in: path
+        name: subscriptionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "204":
+          description: Successfully deleted Subscription
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Subscription found with given ID
+      security:
+      - APIToken: []
+      summary: Delete a Subscription
+      tags:
+      - Subscription
+    get:
+      description: Get a single Subscription
+      operationId: getSubscription
+      parameters:
+      - description: The ID of the Subscription
+        explode: false
+        in: path
+        name: subscriptionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionResponse'
+          description: Returns a Subscription
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Subscription found with given ID
+      security:
+      - APIToken: []
+      summary: Get a single Subscription
+      tags:
+      - Subscription
+    put:
+      description: Update a Subscription
+      operationId: updateSubscription
+      parameters:
+      - description: The ID of the Subscription
+        explode: false
+        in: path
+        name: subscriptionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditSubscriptionRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionResponse'
+          description: Returns the updated Subscription
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to update Subscription
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Subscription found with given ID
+      security:
+      - APIToken: []
+      summary: Update a Subscription
+      tags:
+      - Subscription
+  /shapecollections:
+    get:
+      description: Get all ShapeCollections
+      operationId: getShapeCollections
+      parameters:
+      - description: Limit number of responses (default 255, max 2500)
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 255
+          description: The max number of responses returned
+          example: 1000
+          format: int64
+          maximum: 2500
+          minimum: 1
+          type: integer
+        style: form
+      - description: Offset the response by the integer given. If provided, needs
+          to be above 0.
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 1
+          description: The integer which offsets the response array
+          example: 1
+          format: int64
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShapeCollectionResponseArray'
+          description: Returns all ShapeCollections
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+      security:
+      - APIToken: []
+      summary: Get all ShapeCollections
+      tags:
+      - ShapeCollection
+    post:
+      description: Create a new ShapeCollection
+      operationId: createShapeCollection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewShapeCollectionRequest'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShapeCollectionResponse'
+          description: Returns newly created ShapeCollection
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to create ShapeCollection
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+      security:
+      - APIToken: []
+      summary: Create a new ShapeCollection
+      tags:
+      - ShapeCollection
+  /shapecollections/{shapeCollectionId}:
+    delete:
+      description: Delete a ShapeCollection
+      operationId: deleteShapeCollection
+      parameters:
+      - description: The ID of the ShapeCollection
+        explode: false
+        in: path
+        name: shapeCollectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "204":
+          description: Successfully deleted the ShapeCollection
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No ShapeCollection found with given ID
+      security:
+      - APIToken: []
+      summary: Delete a ShapeCollection
+      tags:
+      - ShapeCollection
+    get:
+      description: Get a single ShapeCollection
+      operationId: getShapeCollection
+      parameters:
+      - description: The ID of the ShapeCollection
+        explode: false
+        in: path
+        name: shapeCollectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShapeCollectionResponse'
+          description: Returns a ShapeCollection
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No ShapeCollection found with given ID
+      security:
+      - APIToken: []
+      summary: Get a single ShapeCollection
+      tags:
+      - ShapeCollection
+    put:
+      description: Edit a ShapeCollection
+      operationId: updateShapeCollection
+      parameters:
+      - description: The ID of the ShapeCollection
+        explode: false
+        in: path
+        name: shapeCollectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditShapeCollectionRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShapeCollectionResponse'
+          description: Returns the updated ShapeCollection
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to update ShapeCollection
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No ShapeCollection found with given ID
+      security:
+      - APIToken: []
+      summary: Edit a ShapeCollection
+      tags:
+      - ShapeCollection
+  /shapecollections/{shapeCollectionId}/geojson:
+    get:
+      description: Get a GeoJSON FeatureCollection for a ShapeCollection
+      operationId: getShapeCollectionFeatureCollection
+      parameters:
+      - description: The ID of the ShapeCollection
+        explode: false
+        in: path
+        name: shapeCollectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      - description: Limit number of responses (default 255, max 2500)
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 255
+          description: The max number of responses returned
+          example: 1000
+          format: int64
+          maximum: 2500
+          minimum: 1
+          type: integer
+        style: form
+      - description: Offset the response by the integer given. If provided, needs
+          to be above 0.
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 1
+          description: The integer which offsets the response array
+          example: 1
+          format: int64
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                description: GeoJSON ShapeCollection
+                type: object
+          description: Returns a GeoJSON FeatureCollection for the ShapeCollection
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No ShapeCollection found with given ID
+      security:
+      - APIToken: []
+      summary: Get a GeoJSON FeatureCollection for a ShapeCollection
+      tags:
+      - ShapeCollection
+    post:
+      description: Create new GeoJSON Feature
+      operationId: createShapeCollectionFeature
+      parameters:
+      - description: The ID of the ShapeCollection
+        explode: false
+        in: path
+        name: shapeCollectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeoJSONFeature'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoJSONFeature'
+          description: Returns newly created GeoJSON Feature
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to create GeoJSON Feature
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No ShapeCollection with given ID
+      security:
+      - APIToken: []
+      summary: Create new GeoJSON Feature
+      tags:
+      - ShapeCollection
+    put:
+      description: |
+        Replace GeoJSON FeatureCollection. Note that this will replace all shapes and generate new IDs for all shapes.
+      operationId: replaceShapeCollectionFeatureCollection
+      parameters:
+      - description: The ID of the ShapeCollection
+        explode: false
+        in: path
+        name: shapeCollectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: true
+              description: GeoJSON FeatureCollection to replace existing GeoJSON FeatureCollection
+                with
+              type: object
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                description: Newly replaced GeoJSON Feature
+                type: object
+          description: Returns updated GeoJSON FeatureCollection
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to replace GeoJSON Feature
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No ShapeCollection or GeoJSON Feature found with given IDs
+      security:
+      - APIToken: []
+      summary: Replace GeoJSON FeatureCollection
+      tags:
+      - ShapeCollection
+  /shapecollections/{shapeCollectionId}/shapes:
+    get:
+      description: Get Shapes for a ShapeCollection
+      operationId: getShapeCollectionShapes
+      parameters:
+      - description: The ID of the ShapeCollection
+        explode: false
+        in: path
+        name: shapeCollectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShapeResponseArray'
+          description: Returns Shapes for the ShapeCollection
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No ShapeCollection found with given ID
+      security:
+      - APIToken: []
+      summary: Get Shapes for a ShapeCollection
+      tags:
+      - ShapeCollection
+  /shapecollections/{shapeCollectionId}/shapes/{shapeId}:
+    delete:
+      description: Delete a Shape
+      operationId: deleteShape
+      parameters:
+      - description: The ID of the ShapeCollection
+        explode: false
+        in: path
+        name: shapeCollectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      - description: The ID of the Shape
+        explode: false
+        in: path
+        name: shapeId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "204":
+          description: Successfully deleted ShapeCollection Feature
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No ShapeCollection or GeoJSON Feature found with given IDs
+      security:
+      - APIToken: []
+      summary: Delete a Shape
+      tags:
+      - ShapeCollection
+    get:
+      description: Get Shape
+      operationId: getShape
+      parameters:
+      - description: The ID of the ShapeCollection
+        explode: false
+        in: path
+        name: shapeCollectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      - description: The ID of the Shape
+        explode: false
+        in: path
+        name: shapeId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShapeResponse'
+          description: Returns Shape
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No ShapeCollection or GeoJSON Feature found with given IDs
+      security:
+      - APIToken: []
+      summary: Get Shape
+      tags:
+      - ShapeCollection
+  /shapecollections/{shapeCollectionId}/shapes/{shapeId}/geojson:
+    get:
+      description: Get Shape GeoJSON Feature
+      operationId: getShapeFeature
+      parameters:
+      - description: The ID of the ShapeCollection
+        explode: false
+        in: path
+        name: shapeCollectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      - description: The ID of the Shape
+        explode: false
+        in: path
+        name: shapeId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoJSONFeature'
+          description: Returns GeoJSON Feature
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No ShapeCollection or GeoJSON Feature found with given IDs
+      security:
+      - APIToken: []
+      summary: Get Shape GeoJSON Feature
+      tags:
+      - ShapeCollection
+    put:
+      description: Update Shape GeoJSON Feature
+      operationId: updateShapeCollectionFeature
+      parameters:
+      - description: The ID of the ShapeCollection
+        explode: false
+        in: path
+        name: shapeCollectionId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      - description: The ID of the Shape
+        explode: false
+        in: path
+        name: shapeId
+        required: true
+        schema:
+          example: 1
+          format: int64
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeoJSONFeature'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                description: Updated GeoJSON Feature
+                type: object
+          description: Returns updated GeoJSON Feature
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to replace GeoJSON Feature
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No ShapeCollection or GeoJSON Feature found with given IDs
+      security:
+      - APIToken: []
+      summary: Update Shape GeoJSON Feature
+      tags:
+      - ShapeCollection
+  /tokens:
+    get:
+      description: Get all Tokens
+      operationId: getTokens
+      parameters:
+      - description: Limit number of responses (default 255, max 2500)
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 255
+          description: The max number of responses returned
+          example: 1000
+          format: int64
+          maximum: 2500
+          minimum: 1
+          type: integer
+        style: form
+      - description: Offset the response by the integer given. If provided, needs
+          to be above 0.
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 1
+          description: The integer which offsets the response array
+          example: 1
+          format: int64
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponseArray'
+          description: Returns all Tokens
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+      security:
+      - APIToken: []
+      summary: Get all Tokens
+      tags:
+      - Token
+    post:
+      description: Create a new Token
+      operationId: createToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTokenRequest'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+          description: Returns newly created Token
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to create Token
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+      security:
+      - APIToken: []
+      summary: Create a new Token
+      tags:
+      - Token
+  /tokens/{tokenId}:
+    delete:
+      description: Delete a Token
+      operationId: deleteToken
+      parameters:
+      - description: The Token value
+        explode: false
+        in: path
+        name: tokenId
+        required: true
+        schema:
+          example: aabbccdd
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Token was deleted successfully
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Token found with given ID
+      security:
+      - APIToken: []
+      summary: Delete a Token
+      tags:
+      - Token
+    get:
+      description: Get a single Collection
+      operationId: getToken
+      parameters:
+      - description: The Token value
+        explode: false
+        in: path
+        name: tokenId
+        required: true
+        schema:
+          example: aabbccdd
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+          description: Returns a Token
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Token found with given ID
+      security:
+      - APIToken: []
+      summary: Get a single Collection
+      tags:
+      - Collection
+    put:
+      description: Update a Token
+      operationId: updateToken
+      parameters:
+      - description: The Token value
+        explode: false
+        in: path
+        name: tokenId
+        required: true
+        schema:
+          example: aabbccdd
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditTokenRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+          description: Returns updated Token
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request when trying to create Token
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: No Token found with given ID
+      security:
+      - APIToken: []
+      summary: Update a Token
+      tags:
+      - Token
+components:
+  parameters:
+    CollectionPathParameter:
+      description: The ID of the Collection
+      explode: false
+      in: path
+      name: collectionId
+      required: true
+      schema:
+        example: 1
+        format: int64
+        type: integer
+      style: simple
+    TeamPathParameter:
+      description: The ID of the Team
+      explode: false
+      in: path
+      name: teamId
+      required: true
+      schema:
+        example: 1
+        format: int64
+        type: integer
+      style: simple
+    TrackerPathParameter:
+      description: The ID of the Tracker
+      explode: false
+      in: path
+      name: trackerId
+      required: true
+      schema:
+        example: 1
+        format: int64
+        type: integer
+      style: simple
+    SubscriptionPathParameter:
+      description: The ID of the Subscription
+      explode: false
+      in: path
+      name: subscriptionId
+      required: true
+      schema:
+        example: 1
+        format: int64
+        type: integer
+      style: simple
+    ShapeCollectionPathParameter:
+      description: The ID of the ShapeCollection
+      explode: false
+      in: path
+      name: shapeCollectionId
+      required: true
+      schema:
+        example: 1
+        format: int64
+        type: integer
+      style: simple
+    ShapeParameter:
+      description: The ID of the Shape
+      explode: false
+      in: path
+      name: shapeId
+      required: true
+      schema:
+        example: 1
+        format: int64
+        type: integer
+      style: simple
+    FilterLimitQueryParameter:
+      description: Limit number of responses (default 255, max 2500)
+      explode: true
+      in: query
+      name: limit
+      required: false
+      schema:
+        default: 255
+        description: The max number of responses returned
+        example: 1000
+        format: int64
+        maximum: 2500
+        minimum: 1
+        type: integer
+      style: form
+    FilterOffsetQueryParameter:
+      description: Offset the response by the integer given. If provided, needs to
+        be above 0.
+      explode: true
+      in: query
+      name: offset
+      required: false
+      schema:
+        default: 1
+        description: The integer which offsets the response array
+        example: 1
+        format: int64
+        minimum: 1
+        type: integer
+      style: form
+    FilterSinceQueryParameter:
+      description: Fetch data since given UNIX timestamp
+      explode: true
+      in: query
+      name: since
+      required: false
+      schema:
+        example: 0
+        format: int64
+        minimum: 0
+        type: integer
+      style: form
+    FilterUntilQueryParameter:
+      description: Fetch data until given UNIX timestamp
+      explode: true
+      in: query
+      name: until
+      required: false
+      schema:
+        example: 1571138625603
+        format: int64
+        minimum: 0
+        type: integer
+      style: form
+    TokenPathParameter:
+      description: The Token value
+      explode: false
+      in: path
+      name: tokenId
+      required: true
+      schema:
+        example: aabbccdd
+        type: string
+      style: simple
+  schemas:
+    BadRequestResponse:
+      properties:
+        title:
+          description: Title representation of the error type
+          example: Bad request
+          type: string
+        status:
+          description: Number representation of the error type
+          example: 400
+          type: integer
+        type:
+          description: Link to information about the error type
+          example: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+          type: string
+        details:
+          description: A list of error details corresponding to the error of the request
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+          type: array
+      required:
+      - details
+      - status
+      - title
+      - type
+      type: object
+    NotFoundResponse:
+      properties:
+        title:
+          description: String representation of the error type
+          example: Not found
+          type: string
+        status:
+          description: Number representation of the error type
+          example: 404
+          type: integer
+        type:
+          description: Link to information about the error type
+          example: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404
+          type: string
+        details:
+          description: A list of error details corresponding to the error of the request
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+          type: array
+      required:
+      - details
+      - status
+      - title
+      - type
+      type: object
+    UnauthorizedResponse:
+      properties:
+        title:
+          description: Title representation of the error type
+          example: Unauthorized
+          type: string
+        status:
+          description: Number representation of the error type
+          example: 401
+          type: integer
+        type:
+          description: Link to information about the error type
+          example: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+          type: string
+      required:
+      - status
+      - title
+      - type
+      type: object
+    ProfileResponse:
+      description: ProfileResponse is the response you get when interacting with the
+        Profile API
+      example:
+        emailVerified: true
+        phone: 0118-999-881-999-119-725-3
+        created: 2000-01-23
+        name: Long John Johnson
+        phoneNumberVerified: true
+        id: 1
+        email: long.john@example.com
+      properties:
+        id:
+          description: The ID of the Profile
+          example: 1
+          format: int64
+          type: integer
+        name:
+          description: Name of the user connected to the Profile
+          example: Long John Johnson
+          type: string
+        email:
+          description: The email of the user connected to the Profile
+          example: long.john@example.com
+          format: email
+          type: string
+        emailVerified:
+          description: Whether the email has been verified for the user
+          example: true
+          type: boolean
+        phone:
+          description: The phone number of the user connected to the Profile
+          example: 0118-999-881-999-119-725-3
+          type: string
+        phoneNumberVerified:
+          description: Whether the phone number has been verified for the user
+          example: true
+          type: boolean
+        created:
+          description: The date of the Profile creation
+          format: date
+          type: string
+      required:
+      - created
+      - email
+      - emailVerified
+      - id
+      - name
+      - phone
+      - phoneNumberVerified
+      type: object
+    TeamResponse:
+      description: TeamResponse is the response you get when interacting with the
+        Team API
+      example:
+        name: Team name
+        description: Team description
+        id: 1
+      properties:
+        id:
+          description: The ID of the Team
+          example: 1
+          format: int64
+          type: integer
+        name:
+          description: Name of the Team
+          example: Team name
+          type: string
+        description:
+          description: Description of the Team
+          example: Team description
+          type: string
+      required:
+      - description
+      - id
+      - name
+      type: object
+    TeamResponseArray:
+      description: TeamResponseArray is a list of `TeamResponse` you get when interacting
+        with the Team API
+      items:
+        $ref: '#/components/schemas/TeamResponse'
+      type: array
+    NewTeamRequest:
+      description: NewTeamRequest is a object to be used when creating a new Team
+      example:
+        name: My new Team name
+        description: My new Team description
+      properties:
+        name:
+          description: The name of the new Team
+          example: My new Team name
+          type: string
+        description:
+          description: The description of the new Team
+          example: My new Team description
+          type: string
+      type: object
+    EditTeamRequest:
+      description: EditTeamRequest is a object to be used when updating a Team
+      example:
+        name: My updated Team name
+        description: My updated Team description
+      properties:
+        name:
+          description: The updated name of the Team
+          example: My updated Team name
+          type: string
+        description:
+          description: The updated description of the Team
+          example: My updated Team description
+          type: string
+      required:
+      - description
+      - name
+      type: object
+    CollectionResponse:
+      description: CollectionResponse is the response you get when interacting with
+        the Collection API
+      example:
+        teamId: 1
+        name: My collection name
+        description: My collection description
+        id: 1
+      properties:
+        id:
+          description: The ID of the Collection
+          example: 1
+          format: int64
+          type: integer
+        name:
+          description: Name of the Collection
+          example: My collection name
+          type: string
+        description:
+          description: Description of the Collection
+          example: My collection description
+          type: string
+        teamId:
+          description: The Team ID of the Collection
+          example: 1
+          format: int64
+          type: number
+      required:
+      - description
+      - id
+      - name
+      type: object
+    CollectionResponseArray:
+      items:
+        $ref: '#/components/schemas/CollectionResponse'
+      type: array
+    NewCollectionRequest:
+      description: A NewCollectionRequest is used when creating a new Collection
+      example:
+        teamId: 1
+        name: My new collection name
+        description: My new collection description
+      properties:
+        name:
+          description: The name of the new Collection
+          example: My new collection name
+          type: string
+        description:
+          description: The description of the new Collection
+          example: My new collection description
+          type: string
+        teamId:
+          description: The Team ID of the new Collection
+          example: 1
+          format: int64
+          type: integer
+      required:
+      - teamId
+      type: object
+    EditCollectionRequest:
+      description: A EditCollectionRequest is used when editing a Collection
+      example:
+        teamId: 1
+        name: My updated Collection name
+        description: My updated Collection description
+      properties:
+        name:
+          description: The updated name of the Collection
+          example: My updated Collection name
+          type: string
+        description:
+          description: The updated Collection description
+          example: My updated Collection description
+          type: string
+        teamId:
+          description: The Team ID of the Collection
+          example: 1
+          format: int64
+          type: integer
+      required:
+      - description
+      - name
+      - teamId
+      type: object
+    TrackerResponse:
+      description: TrackerResponse is the response you get when interacting with the
+        Tracker API
+      example:
+        name: My tracker name
+        description: My tracker description
+        id: 1
+        collectionId: 1
+      properties:
+        id:
+          description: The ID of the Tracker
+          example: 1
+          format: int64
+          type: integer
+        collectionId:
+          description: The Collection ID of the Tracker
+          example: 1
+          format: int64
+          type: integer
+        name:
+          description: The name of the Tracker
+          example: My tracker name
+          type: string
+        description:
+          description: The description of the Tracker
+          example: My tracker description
+          type: string
+      required:
+      - collectionId
+      - description
+      - id
+      - name
+      type: object
+    TrackerResponseArray:
+      items:
+        $ref: '#/components/schemas/TrackerResponse'
+      type: array
+    NewTrackerRequest:
+      example:
+        name: My new tracker name
+        description: My new tracker description
+      properties:
+        name:
+          example: My new tracker name
+          type: string
+        description:
+          example: My new tracker description
+          type: string
+      type: object
+    EditTrackerRequest:
+      example:
+        name: My tracker name
+        description: My tracker description
+        collectionId: 1
+      properties:
+        collectionId:
+          description: The updated Collection ID of the Tracker
+          example: 1
+          format: int64
+          type: integer
+        name:
+          description: The updated Tracker name
+          example: My tracker name
+          type: string
+        description:
+          description: The updated Tracker description
+          example: My tracker description
+          type: string
+      required:
+      - collectionId
+      - description
+      - name
+      type: object
+    PositionResponse:
+      description: PositionResponse is the response you get when interacting with
+        the Position API
+      example:
+        trackerId: 1
+        lng: 10.437785
+        heading: 90
+        payload: payload
+        precision: 0.75
+        alt: 96.123
+        id: 1
+        lat: 63.421506
+        speed: 12.9
+        timestamp: 1572863612594
+      properties:
+        id:
+          description: The ID of the Position
+          example: 1
+          format: int64
+          type: integer
+        trackerId:
+          description: The ID of the Tracker the position belongs to
+          example: 1
+          format: int64
+          type: integer
+        timestamp:
+          description: The UNIX timestamp of the position. If omitted, server timestamp
+            will be used.
+          example: 1572863612594
+          format: int64
+          type: integer
+        lat:
+          description: Latitude of the position
+          example: 63.421506
+          maximum: 90
+          minimum: -90
+          type: number
+        lng:
+          description: Longitude of the position
+          example: 10.437785
+          maximum: 180
+          minimum: -180
+          type: number
+        alt:
+          description: Altitude of the position
+          example: 96.123
+          type: number
+        heading:
+          description: Heading in degrees
+          example: 90
+          maximum: 360
+          minimum: 0
+          type: number
+        speed:
+          description: Speed in knots
+          example: 12.9
+          minimum: 0
+          type: number
+        precision:
+          default: 1
+          description: Normalized precision between 0..1
+          example: 0.75
+          maximum: 1
+          minimum: 0
+          type: number
+        payload:
+          description: Arbritary payload connected to the position. Max size of 10
+            KB.
+          format: byte
+          maximum: 10000
+          type: string
+      required:
+      - alt
+      - heading
+      - id
+      - lat
+      - lng
+      - payload
+      - precision
+      - speed
+      - timestamp
+      - trackerId
+      type: object
+    PositionResponseArray:
+      items:
+        $ref: '#/components/schemas/PositionResponse'
+      type: array
+    NewPositionRequest:
+      example:
+        lng: 10.437785
+        heading: 90
+        payload: aHR0cDovL2xvcmVtcGl4ZWwuY29tLzY0MC80ODAvY2F0cw==
+        precision: 0.75
+        alt: 96.123
+        lat: 63.421506
+        speed: 12.9
+        timestamp: 1572863612594
+      properties:
+        timestamp:
+          description: The UNIX timestamp of the position. If omitted, server timestamp
+            will be used.
+          example: 1572863612594
+          format: int64
+          type: integer
+        lat:
+          description: Latitude of the position
+          example: 63.421506
+          maximum: 90
+          minimum: -90
+          type: number
+        lng:
+          description: Longitude of the position
+          example: 10.437785
+          maximum: 180
+          minimum: -180
+          type: number
+        alt:
+          description: Altitude of the position
+          example: 96.123
+          type: number
+        heading:
+          description: Heading in degrees
+          example: 90
+          maximum: 360
+          minimum: 0
+          type: number
+        speed:
+          description: Speed in knots
+          example: 12.9
+          minimum: 0
+          type: number
+        precision:
+          default: 1
+          description: Normalized precision between 0..1
+          example: 0.75
+          maximum: 1
+          minimum: 0
+          type: number
+        payload:
+          description: Arbritary payload connected to the position. Max size of 10
+            KB.
+          example: aHR0cDovL2xvcmVtcGl4ZWwuY29tLzY0MC80ODAvY2F0cw==
+          maximum: 10000
+          type: string
+      required:
+      - lat
+      - lng
+      type: object
+    GeoJSONFeatureCollection:
+      description: GeoJSON Feature collection
+      properties:
+        type:
+          enum:
+          - FeatureCollection
+          type: string
+        features:
+          items:
+            $ref: '#/components/schemas/GeoJSONFeature'
+          type: array
+      required:
+      - features
+      - type
+      type: object
+    GeoJSONFeature:
+      description: GeoJSON Feature
+      example:
+        type: Feature
+        properties:
+          key: '{}'
+      properties:
+        type:
+          description: The type of the feature. This value can only be "Feature"
+          enum:
+          - Feature
+          example: Feature
+          type: string
+        geometry:
+          $ref: '#/components/schemas/Geometry'
+        properties:
+          additionalProperties: true
+          description: Feature properties
+          type: object
+      required:
+      - geometry
+      - properties
+      - type
+      type: object
+    Geometry:
+      description: The geometry for the Feature. We support Point, Polygon and Multipolygon
+      discriminator:
+        mapping:
+          Point: '#/components/schemas/Point'
+          Polygon: '#/components/schemas/Polygon'
+          MultiPolygon: '#/components/schemas/MultiPolygon'
+        propertyName: type
+      oneOf:
+      - $ref: '#/components/schemas/Point'
+      - $ref: '#/components/schemas/Polygon'
+      - $ref: '#/components/schemas/MultiPolygon'
+      type: object
+    Point2D:
+      description: Point in 2D space
+      items:
+        type: number
+      maxItems: 2
+      minItems: 2
+      type: array
+    Point:
+      allOf:
+      - $ref: '#/components/schemas/Point_allOf'
+      description: GeoJSON geometry
+      externalDocs:
+        url: http://geojson.org/geojson-spec.html#id2
+      type: object
+    Polygon:
+      allOf:
+      - $ref: '#/components/schemas/Polygon_allOf'
+      description: GeoJSON geometry
+      externalDocs:
+        url: http://geojson.org/geojson-spec.html#id4
+      type: object
+    MultiPolygon:
+      allOf:
+      - $ref: '#/components/schemas/MultiPolygon_allOf'
+      description: GeoJSON geometry
+      externalDocs:
+        url: http://geojson.org/geojson-spec.html#id6
+      type: object
+    SubscriptionOutput:
+      description: The output for the Subscription
+      discriminator:
+        mapping:
+          webhook: '#/components/schemas/WebhookOutput'
+          websocket: '#/components/schemas/WebSocketOutput'
+          sms: '#/components/schemas/SMSOutput'
+        propertyName: type
+      oneOf:
+      - $ref: '#/components/schemas/WebhookOutput'
+      - $ref: '#/components/schemas/WebSocketOutput'
+      - $ref: '#/components/schemas/SMSOutput'
+      type: object
+    WebhookOutput:
+      allOf:
+      - $ref: '#/components/schemas/WebhookOutput_allOf'
+      description: Output for Webhook
+    WebSocketOutput:
+      description: Output for websocket
+      properties:
+        type:
+          description: The type of output
+          example: websocket
+          type: string
+      required:
+      - type
+    SMSOutput:
+      allOf:
+      - $ref: '#/components/schemas/SMSOutput_allOf'
+      description: Output for SMS
+    SubscriptionResponse:
+      description: SubscriptionResponse is the response you get when interacting with
+        the Subscription API
+      example:
+        trackable:
+          id: 1
+          type: collection
+        triggerCriteria:
+          confidence:
+          - medium
+          - high
+          triggerTypes:
+          - entered
+          - exited
+        teamId: 1
+        shapeCollectionId: 1
+        name: My subscription name
+        description: My subscription description
+        active: false
+        id: 1
+      properties:
+        id:
+          description: The ID of the Subscription
+          example: 1
+          format: int64
+          type: integer
+        teamId:
+          description: The ID of the Team for the Subscription
+          example: 1
+          format: int64
+          type: integer
+        name:
+          description: The name of the Subscription
+          example: My subscription name
+          type: string
+        description:
+          description: The description of the Subscription
+          example: My subscription description
+          type: string
+        active:
+          description: Boolean showing whether the subscription is active
+          example: false
+          type: boolean
+        output:
+          $ref: '#/components/schemas/SubscriptionOutput'
+        triggerCriteria:
+          $ref: '#/components/schemas/SubscriptionResponse_triggerCriteria'
+        shapeCollectionId:
+          description: The ID of the ShapeCollection containing shapes to subscribe
+            to
+          example: 1
+          format: int64
+          type: integer
+        trackable:
+          $ref: '#/components/schemas/SubscriptionResponse_trackable'
+      required:
+      - active
+      - description
+      - id
+      - name
+      - output
+      - shapeCollectionId
+      - teamId
+      - trackable
+      - triggerCriteria
+      type: object
+    SubscriptionResponseArray:
+      items:
+        $ref: '#/components/schemas/SubscriptionResponse'
+      type: array
+    NewSubscriptionRequest:
+      example:
+        trackable:
+          id: 1
+          type: collection
+        triggerCriteria:
+          confidence:
+          - medium
+          - high
+          triggerTypes:
+          - entered
+          - exited
+        teamId: 1
+        shapeCollectionId: 1
+        name: My subscription name
+        description: My subscription description
+        active: false
+      properties:
+        teamId:
+          description: The ID of the Team for the Subscription
+          example: 1
+          format: int64
+          type: integer
+        name:
+          description: The name of the Subscription
+          example: My subscription name
+          type: string
+        description:
+          description: The description of the Subscription
+          example: My subscription description
+          type: string
+        active:
+          description: Boolean showing whether the subscription is active
+          example: false
+          type: boolean
+        output:
+          $ref: '#/components/schemas/SubscriptionOutput'
+        triggerCriteria:
+          $ref: '#/components/schemas/SubscriptionResponse_triggerCriteria'
+        shapeCollectionId:
+          description: The ID of the ShapeCollection containing shapes to subscribe
+            to
+          example: 1
+          format: int64
+          type: integer
+        trackable:
+          $ref: '#/components/schemas/SubscriptionResponse_trackable'
+      required:
+      - output
+      - shapeCollectionId
+      - teamId
+      - trackable
+      - triggerCriteria
+      type: object
+    EditSubscriptionRequest:
+      example:
+        trackable:
+          id: 1
+          type: collection
+        triggerCriteria:
+          confidence:
+          - medium
+          - high
+          triggerTypes:
+          - entered
+          - exited
+        teamId: 1
+        shapeCollectionId: 1
+        name: My subscription name
+        description: My subscription description
+        active: false
+      properties:
+        teamId:
+          description: The Team ID of the Subscription
+          example: 1
+          format: int64
+          type: integer
+        name:
+          description: The updated name of the Subscription
+          example: My subscription name
+          type: string
+        description:
+          description: The updated description of the Subscription
+          example: My subscription description
+          type: string
+        active:
+          description: Updated boolean showing whether the subscription is active
+          example: false
+          type: boolean
+        output:
+          $ref: '#/components/schemas/SubscriptionOutput'
+        triggerCriteria:
+          $ref: '#/components/schemas/SubscriptionResponse_triggerCriteria'
+        shapeCollectionId:
+          description: The ID of the ShapeCollection containing shapes to subscribe
+            to
+          example: 1
+          format: int64
+          type: integer
+        trackable:
+          $ref: '#/components/schemas/SubscriptionResponse_trackable'
+      required:
+      - active
+      - description
+      - name
+      - output
+      - shapeCollectionId
+      - teamId
+      - trackable
+      - triggerCriteria
+      type: object
+    ShapeCollectionResponse:
+      description: ShapeCollectionResponse is the response you get when interacting
+        with the ShapeCollection API
+      example:
+        teamId: 1
+        name: My shape collection
+        description: My shape collection description
+        id: 1
+      properties:
+        id:
+          description: The ID of the ShapeCollection
+          example: 1
+          format: int64
+          type: integer
+        teamId:
+          description: The Team ID of the ShapeCollection
+          example: 1
+          format: int64
+          type: integer
+        name:
+          description: The name of the ShapeCollection
+          example: My shape collection
+          type: string
+        description:
+          description: The description of the ShapeCollection
+          example: My shape collection description
+          type: string
+      required:
+      - description
+      - id
+      - name
+      - teamId
+      type: object
+    ShapeCollectionResponseArray:
+      items:
+        $ref: '#/components/schemas/ShapeCollectionResponse'
+      type: array
+    NewShapeCollectionRequest:
+      example:
+        teamId: 1
+        name: My shape collection
+        description: My shape collection description
+      properties:
+        teamId:
+          description: The Team ID of the ShapeCollection
+          example: 1
+          format: int64
+          type: integer
+        name:
+          description: The name of the ShapeCollection
+          example: My shape collection
+          type: string
+        description:
+          description: The description of the ShapeCollection
+          example: My shape collection description
+          type: string
+      required:
+      - teamId
+      type: object
+    EditShapeCollectionRequest:
+      example:
+        teamId: 1
+        name: My shape collection
+        description: My shape collection description
+      properties:
+        teamId:
+          description: The updated Team ID of the ShapeCollection
+          example: 1
+          format: int64
+          type: integer
+        name:
+          description: The updated name of the ShapeCollection
+          example: My shape collection
+          type: string
+        description:
+          description: The updated description of the ShapeCollection
+          example: My shape collection description
+          type: string
+      required:
+      - description
+      - name
+      - teamId
+      type: object
+    ShapeResponse:
+      description: ShapeResponse is the response you get when interacting with the
+        ShapeCollection API
+      example:
+        shapeCollectionId: 1
+        name: My shape
+        id: 1
+        properties:
+          name: My shape
+          foo: bar
+      properties:
+        id:
+          description: The ID of the Shape
+          example: 1
+          format: int64
+          type: integer
+        shapeCollectionId:
+          description: The ShapeCollection ID of the Shape
+          example: 1
+          format: int64
+          type: integer
+        name:
+          description: The name of the Shape, derived from the GeoJSON feature
+          example: My shape
+          type: string
+        properties:
+          additionalProperties: true
+          description: The properties connected to the Shape, derived from GeoJSON
+            feature
+          example:
+            name: My shape
+            foo: bar
+          type: object
+      required:
+      - id
+      - name
+      - properties
+      - shapeCollectionId
+      type: object
+    ShapeResponseArray:
+      items:
+        $ref: '#/components/schemas/ShapeResponse'
+      type: array
+    TokenResponse:
+      description: TokenResponse is the response you get when interacting with the
+        Token API
+      example:
+        permWrite: false
+        resource: /collections/1337
+        created: 1572863612594
+        token: aabbccdd
+      properties:
+        token:
+          description: The Token that can be used for programmatical access
+          example: aabbccdd
+          type: string
+        created:
+          description: The UNIX timestamp of the creation of the Token
+          example: 1572863612594
+          format: int64
+          type: integer
+        resource:
+          description: Limits the allowed paths of the token towards the rest of the
+            API. Only the direct path or subpath of this parameter will be allowed
+          example: /collections/1337
+          type: string
+        permWrite:
+          description: Determines whether the token is allowed to do POST, PUT and
+            DELETE methods
+          example: false
+          type: boolean
+      required:
+      - created
+      - permWrite
+      - resource
+      - token
+      type: object
+    TokenResponseArray:
+      description: TokenResponseArray is a list of `TokenResponse` you get when interacting
+        with the Token API
+      items:
+        $ref: '#/components/schemas/TokenResponse'
+      type: array
+    NewTokenRequest:
+      description: NewTokenRequest is a object to be used when creating a new Token
+      example:
+        permWrite: false
+        resource: /collections/1337
+      properties:
+        resource:
+          description: Limits the allowed paths of the token towards the rest of the
+            API. Only the direct path or subpath of this parameter will be allowed
+          example: /collections/1337
+          type: string
+        permWrite:
+          description: Determines whether the token is allowed to do POST, PUT and
+            DELETE methods
+          example: false
+          type: boolean
+      type: object
+    EditTokenRequest:
+      description: NewTokenRequest is a object to be used when creating a new Token
+      example:
+        permWrite: false
+        resource: /collections/1337
+      properties:
+        resource:
+          description: Limits the allowed paths of the token towards the rest of the
+            API. Only the direct path or subpath of this parameter will be allowed
+          example: /collections/1337
+          type: string
+        permWrite:
+          description: Determines whether the token is allowed to do POST, PUT and
+            DELETE methods
+          example: false
+          type: boolean
+      required:
+      - permWrite
+      - resource
+      type: object
+    ErrorDetail:
+      properties:
+        field:
+          description: String representation of the field which has an error
+          example: exampleField
+          type: string
+        reason:
+          description: Reason to what is wrong with the field given in `field`
+          example: Example reason connected to the exampleField
+          type: string
+      required:
+      - field
+      - reason
+      type: object
+    SubscriptionTriggerType:
+      enum:
+      - inside
+      - outside
+      - entered
+      - exited
+      example: '["entered"]'
+      type: string
+    SubscriptionTriggerTypeArray:
+      description: The different types of triggers that should trigger the Subscription
+      example:
+      - entered
+      - exited
+      items:
+        $ref: '#/components/schemas/SubscriptionTriggerType'
+      type: array
+    SubscriptionConfidenceType:
+      enum:
+      - low
+      - medium
+      - high
+      example: '["medium"]'
+      type: string
+    SubscriptionConfidenceTypeArray:
+      description: |
+        The confidence level of which the Subscription should trigger. The value is provided with the
+        position and is a normalized value from `0..1`
+
+        * `low`: Low means a confidence of `[0 .. 0.4]`
+        * `medium`: Medium means a confidence of `(0.4 .. 0.8]`
+        * `high`: High means a confidence of `(0.8 .. 1]`
+      example:
+      - medium
+      - high
+      items:
+        $ref: '#/components/schemas/SubscriptionConfidenceType'
+      type: array
+    SubscriptionTrackerType:
+      enum:
+      - tracker
+      - collection
+      example: collection
+      type: string
+    Point_allOf:
+      properties:
+        type:
+          description: The type of geometry
+          example: Point
+          type: string
+        coordinates:
+          description: Point in 2D space
+          items:
+            type: number
+          maxItems: 2
+          minItems: 2
+          type: array
+      required:
+      - coordinates
+      - type
+    Polygon_allOf:
+      properties:
+        type:
+          description: The type of geometry
+          example: Polygon
+          type: string
+        coordinates:
+          items:
+            items:
+              $ref: '#/components/schemas/Point2D'
+            type: array
+          type: array
+      required:
+      - coordinates
+      - type
+    MultiPolygon_allOf:
+      properties:
+        type:
+          description: The type of geometry
+          example: MultiPolygon
+          type: string
+        coordinates:
+          items:
+            items:
+              items:
+                $ref: '#/components/schemas/Point2D'
+              type: array
+            type: array
+          type: array
+      required:
+      - coordinates
+      - type
+    WebhookOutput_allOf_config:
+      description: Webhook configuration
+      properties:
+        host:
+          description: The webhook host endpoint
+          example: https://example.com
+          type: string
+      required:
+      - host
+    WebhookOutput_allOf:
+      properties:
+        type:
+          description: The type of output
+          example: webhook
+          type: string
+        config:
+          $ref: '#/components/schemas/WebhookOutput_allOf_config'
+      required:
+      - config
+      - type
+    SMSOutput_allOf_config:
+      description: SMS configuration
+      properties:
+        twilioApiKey:
+          description: Twilio API Key to be used when sending SMS
+          example: AAAKAAKACCAKJHASBDDAJJA
+          type: string
+        receivePhoneNumber:
+          description: Phone number which will receive the notifications
+          type: string
+      required:
+      - receivePhoneNumber
+      - twilioApiKey
+    SMSOutput_allOf:
+      properties:
+        type:
+          description: The type of output
+          example: sms
+          type: string
+        config:
+          $ref: '#/components/schemas/SMSOutput_allOf_config'
+      required:
+      - config
+      - type
+    SubscriptionResponse_triggerCriteria:
+      description: The trigger criterias for a Subscription
+      example:
+        confidence:
+        - medium
+        - high
+        triggerTypes:
+        - entered
+        - exited
+      properties:
+        triggerTypes:
+          description: The different types of triggers that should trigger the Subscription
+          example:
+          - entered
+          - exited
+          items:
+            $ref: '#/components/schemas/SubscriptionTriggerType'
+          type: array
+        confidence:
+          description: |
+            The confidence level of which the Subscription should trigger. The value is provided with the
+            position and is a normalized value from `0..1`
+
+            * `low`: Low means a confidence of `[0 .. 0.4]`
+            * `medium`: Medium means a confidence of `(0.4 .. 0.8]`
+            * `high`: High means a confidence of `(0.8 .. 1]`
+          example:
+          - medium
+          - high
+          items:
+            $ref: '#/components/schemas/SubscriptionConfidenceType'
+          type: array
+      required:
+      - confidence
+      - triggerTypes
+    SubscriptionResponse_trackable:
+      description: Details of which entities the subscription tracks
+      example:
+        id: 1
+        type: collection
+      properties:
+        id:
+          description: The ID of the trackable entity
+          example: 1
+          format: int64
+          type: number
+        type:
+          $ref: '#/components/schemas/SubscriptionTrackerType'
+      required:
+      - id
+      - type
+  securitySchemes:
+    APIToken:
+      description: |
+        ### Authorization through token
+        A way of authorizing yourself towards the API is using an API token. The token is aquired
+        by using the UI which will generate a personal token which represents you as a user. This
+        token can in turn be used for programmatical access towards all the APIs.
+      in: header
+      name: X-API-Token
+      type: apiKey
+x-tagGroups:
+- name: API Endpoints
+  tags:
+  - Profile
+  - Team
+  - Collection
+  - Tracker
+  - Position
+  - Subscription
+  - ShapeCollection
+  - Token
+- name: Integration
+  tags:
+  - Clients introduction
+  - TypeScript fetch client
+  - Go client
